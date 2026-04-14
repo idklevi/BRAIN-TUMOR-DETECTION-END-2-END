@@ -1,4 +1,7 @@
-python==3.5
-tensorflow==1.5
-keras=1.1.0
 flask
+gunicorn
+torch
+torchvision
+numpy
+pillow
+opencv-python
