@@ -2,8 +2,8 @@
 
 # 🧠 Brain Tumor Detection — End to End
 
-> A deep learning project that classifies brain tumors from MRI scans into three types using a fine-tuned ResNet50 model.  
-> Built as a complete pipeline — from raw dataset preprocessing to a working Flask web app.
+> A deep learning web application that classifies brain tumors from MRI scans into three types using a fine-tuned ResNet50 model.
+> Covers the complete pipeline — from raw dataset preprocessing to a deployed Flask app.
 
 </div>
 
@@ -11,85 +11,265 @@
 
 ## ⚠️ Medical Disclaimer
 
-This project is for **educational purposes only**.  
-It should not be used for medical diagnosis. Always consult a qualified medical professional.
+This project is for **educational and research purposes only**.
+It is **not a substitute for professional medical diagnosis**. Always consult a qualified medical professional.
 
 ---
 
 ## 🔬 About the Project
 
-This project explores how deep learning can be applied to classify brain tumors using MRI scans.
+Brain tumors are among the most critical medical conditions, where accurate classification plays a major role in treatment decisions.
 
-Instead of training a model from scratch, I used **transfer learning with ResNet50** and fine-tuned it on a brain tumor dataset to improve performance with limited data.
+This project explores how **transfer learning with ResNet50** can be used to classify MRI scans into tumor categories with high accuracy.
 
-What makes this project “end-to-end” is that it doesn’t stop at model training. It includes:
-- Data preprocessing from raw `.mat` files  
-- Model training and evaluation  
-- A Flask web app for real-time predictions  
+Unlike simple model demos, this project is **end-to-end**, including:
+
+* Processing raw `.mat` MRI data
+* Converting and organizing dataset
+* Training and fine-tuning a deep learning model
+* Building a web interface for real-time predictions
+* Preparing the system for deployment
 
 ---
 
 ## ⚙️ How It Works
 
-1. User uploads an MRI image  
-2. Image is preprocessed (resized, normalized)  
-3. Model predicts tumor type  
-4. Result + confidence score is displayed  
+```
+User Uploads MRI Image
+        ↓
+Preprocessing (Resize → Normalize → Tensor)
+        ↓
+ResNet50 Model Inference
+        ↓
+3-Class Output (Softmax)
+        ↓
+Predicted Tumor Type Displayed
+```
 
-Classes:
-- Glioma  
-- Meningioma  
-- Pituitary  
+### Classes:
+
+* **Glioma**
+* **Meningioma**
+* **Pituitary**
 
 ---
 
 ## 📊 Dataset
 
-- Source: Figshare (Jun Cheng dataset)  
-- Total images: 3,064  
-- Format: `.mat` → converted to `.jpg`  
-- Task: 3-class classification  
-
-⚠️ Note:
-- Dataset is relatively small  
-- Class imbalance exists (glioma > meningioma)  
-
----
-
-## 🏗️ Model
-
-- Base model: ResNet50 (pretrained on ImageNet)  
-- Approach: Transfer learning + fine-tuning  
-- Final layer modified for 3-class classification  
+| Property         | Details                                |
+| ---------------- | -------------------------------------- |
+| **Name**         | Brain Tumor Dataset                    |
+| **Author**       | Jun Cheng                              |
+| **Source**       | Figshare                               |
+| **Total Images** | 3,064                                  |
+| **Patients**     | 233                                    |
+| **Format**       | `.mat` (MATLAB) → converted to `.jpg`  |
+| **Task**         | Multi-class classification (3 classes) |
 
 ---
 
-## 📈 Performance
+### Class Distribution
 
-- Accuracy: ~99% (on test split)
-
-⚠️ Important:
-- High accuracy does not guarantee real-world reliability  
-- Model is trained on a limited dataset  
-
----
-
-## 🖥️ Application
-
-A simple Flask web app allows users to:
-- Upload MRI images  
-- Get predictions instantly  
+| Class          | Description                               | Samples |
+| -------------- | ----------------------------------------- | :-----: |
+| **Glioma**     | Aggressive tumor from glial cells         |   1426  |
+| **Meningioma** | Tumor from brain membranes (often benign) |   708   |
+| **Pituitary**  | Tumor in pituitary gland                  |   930   |
 
 ---
 
-## 🚀 Running the Project
+### `.mat` File Structure
+
+Each `.mat` file contains:
+
+| Field                | Description                |
+| -------------------- | -------------------------- |
+| `cjdata.image`       | MRI image matrix           |
+| `cjdata.label`       | Tumor label (1, 2, 3)      |
+| `cjdata.tumorBorder` | Tumor boundary coordinates |
+| `cjdata.tumorMask`   | Binary tumor mask          |
+
+---
+
+### Data Preprocessing
+
+* Converted `.mat` → `.jpg`
+* Organized into class folders
+* Applied transformations:
+
+  * Resize to 224×224
+  * Normalization (ImageNet mean/std)
+
+---
+
+## 🏗️ Model Architecture
+
+Instead of training from scratch, this project uses **transfer learning**.
+
+### Base Model:
+
+* **ResNet50 (ImageNet pretrained)**
+
+### Modifications:
+
+* Final fully connected layer replaced for **3-class output**
+
+```
+Input (224×224×3)
+      ↓
+ResNet50 Backbone
+      ↓
+Fully Connected Layer (2048 → 3)
+      ↓
+Output: Glioma / Meningioma / Pituitary
+```
+
+---
+
+## 📈 Model Performance
+
+| Metric            | Value |
+| ----------------- | :---: |
+| **Accuracy**      |  ~99% |
+| **Glioma F1**     |  ~99% |
+| **Meningioma F1** |  ~98% |
+| **Pituitary F1**  |  ~99% |
+
+⚠️ Notes:
+
+* High accuracy is dataset-specific
+* Model may not generalize to real-world clinical data
+* Class imbalance slightly affects meningioma performance
+
+---
+
+## 🖥️ Web Application
+
+A Flask-based web interface enables real-time predictions.
+
+### Features:
+
+* Upload MRI images
+* Instant classification
+* Clean UI (responsive for desktop & mobile)
+* End-to-end inference pipeline
+
+---
+
+## 🧠 Model Handling
+
+The trained model (~90MB) is **not included in the repository**.
+
+### Instead:
+
+* Stored on Google Drive
+* Downloaded dynamically at runtime using `gdown`
+
+```python
+gdown.download(url, MODEL_PATH)
+```
+
+This keeps the repository lightweight and deployment-friendly.
+
+---
+
+## 📁 Project Structure
+
+```
+project/
+│
+├── models/                 # downloaded model
+├── static/                 # css, uploads
+├── templates/              # html pages
+├── app.py                  # flask app
+├── Dockerfile              # deployment
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 🚀 Running Locally
 
 ```bash
-git clone https://github.com/idklevi/BRAIN-TUMOR-DETECTION-END-2-END-.git
+git clone https://github.com/idklevi/BRAIN-TUMOR-DETECTION-END-2-END.git
 cd "BRAIN TUMOR DETECTION [END 2 END]"
 
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate        # Linux/macOS
+venv\Scripts\activate           # Windows
 
 pip install -r requirements.txt
 python app.py
+```
+
+Open in browser:
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+## 🌐 Deployment
+
+This project is deployment-ready using:
+
+* **Docker**
+* **Render**
+
+### Key Points:
+
+* Uses `gunicorn` for production
+* Model downloaded at startup
+* No large files in repository
+* Lightweight frontend
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer            | Technology           |
+| ---------------- | -------------------- |
+| Language         | Python               |
+| Deep Learning    | PyTorch, Torchvision |
+| Model            | ResNet50             |
+| Backend          | Flask                |
+| Frontend         | HTML, CSS, Jinja2    |
+| Image Processing | PIL                  |
+| Deployment       | Docker, Render       |
+
+---
+
+## ⚠️ Limitations
+
+* Small dataset size
+* Class imbalance
+* No clinical validation
+* Not suitable for real medical diagnosis
+
+---
+
+## 📌 Future Improvements
+
+* Add confidence score display
+* Add Grad-CAM visualization
+* Improve dataset size
+* Enhance UI/UX
+* Optimize inference speed
+
+---
+
+## 📚 References
+
+* Jun Cheng Brain Tumor Dataset (Figshare)
+* ResNet Paper (He et al., 2015)
+* PyTorch Transfer Learning Docs
+
+---
+
+<div align="center">
+
+Built as a complete deep learning pipeline 🚀
+
+</div>
