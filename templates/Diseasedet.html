@@ -1,56 +1,453 @@
-<!doctype html> 
-<html> 
-<title>Brain tumor DETECTION</title>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NeuroScan — Brain Tumor Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #050d1a;
+      --surface:  #0a1628;
+      --card:     #0d1f36;
+      --border:   rgba(0,224,200,0.12);
+      --accent:   #00e0c8;
+      --accent2:  #3d8fff;
+      --danger:   #ff5f7e;
+      --text:     #e2eaf5;
+      --muted:    #6b8299;
+      --mono:     'DM Mono', monospace;
+      --head:     'Syne', sans-serif;
+      --body:     'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid bg ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,224,200,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,224,200,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* ── Glow orbs ── */
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(120px);
+      pointer-events: none; z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(0,224,200,0.05); top: -200px; left: -200px; }
+    .orb-2 { width: 500px; height: 500px; background: rgba(61,143,255,0.06); bottom: -150px; right: -150px; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      background: rgba(5,13,26,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--head);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo svg { width: 28px; height: 28px; }
+    .nav-badge {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      padding: 8px 20px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; z-index: 1;
+      padding: 100px 5% 80px;
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    }
+    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; padding: 60px 6% 50px; } }
+
+    .hero-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 24px;
+    }
+    .hero-label::before {
+      content: '';
+      width: 24px; height: 1px;
+      background: var(--accent);
+    }
+    h1 {
+      font-family: var(--head);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+    h1 span { color: var(--accent); }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 440px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 24px rgba(0,224,200,0.2);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(0,224,200,0.35); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 24px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Scan visual ── */
+    .hero-visual {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    @media (max-width: 768px) { .hero-visual { display: none; } }
+    .scan-frame {
+      position: relative;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      animation: pulse-ring 3s ease-in-out infinite;
+    }
+    .scan-frame::before, .scan-frame::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0,224,200,0.08);
+    }
+    .scan-frame::before { inset: -24px; }
+    .scan-frame::after  { inset: -48px; }
+    @keyframes pulse-ring {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,224,200,0.1); }
+      50%       { box-shadow: 0 0 0 20px rgba(0,224,200,0); }
+    }
+    .scan-img {
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: grayscale(0.3) brightness(0.9);
+    }
+    .scan-line {
+      position: absolute;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: scan 2.5s ease-in-out infinite;
+      opacity: 0.6;
+    }
+    @keyframes scan {
+      0%   { top: 0;    opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.6; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .scan-corner {
+      position: absolute;
+      width: 16px; height: 16px;
+    }
+    .scan-corner.tl { top: 8px; left: 8px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+    .scan-corner.tr { top: 8px; right: 8px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+    .scan-corner.bl { bottom: 8px; left: 8px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+    .scan-corner.br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+
+    /* ── Stats row ── */
+    .stats {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto 80px;
+      padding: 0 5%;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    @media (max-width: 600px) { .stats { grid-template-columns: 1fr; } }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.5;
+    }
+    .stat-num {
+      font-family: var(--head);
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+    }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-top: 4px;
+    }
+
+    /* ── Info section ── */
+    .info-section {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto 80px;
+      padding: 0 5%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    @media (max-width: 768px) { .info-section { grid-template-columns: 1fr; } }
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+    }
+    .info-title {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .info-title::before { content: '//'; color: var(--muted); }
+    .info-list {
+      list-style: none;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .info-list li {
+      font-size: 0.82rem;
+      padding: 4px 12px;
+      background: rgba(0,224,200,0.06);
+      border: 1px solid rgba(0,224,200,0.1);
+      border-radius: 100px;
+      color: var(--text);
+      font-family: var(--mono);
+    }
+    .symptom-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .symptom-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .symptom-item::before { content: '→'; color: var(--accent); font-family: var(--mono); flex-shrink: 0; }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto 48px;
+      padding: 0 5%;
+    }
+    .disclaimer-box {
+      background: rgba(255,95,126,0.05);
+      border: 1px solid rgba(255,95,126,0.2);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex; gap: 12px; align-items: flex-start;
+      font-size: 0.82rem;
+      color: rgba(255,95,126,0.8);
+      font-family: var(--mono);
+      line-height: 1.5;
+    }
+    .disclaimer-box svg { flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 20px 5%;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    footer span { color: var(--accent); }
+
+    /* ── Fade-in ── */
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.35s; }
+    .delay-4 { animation-delay: 0.5s; }
+  </style>
 </head>
- <body> 
-    <h1 class="h1 fw-bold text-center text-uppercase shadow py-2 my-1 px-1 mx-1 bg-primary text-white">Brain Tumor DETECTION</h1>
-<div class="container my-1 p-2 text-center">
-    <div class="border text-center rounded">
-        <img src="{{ url_for('static', filename='b.jpg') }}" alt="" class="mx-auto img-thumbnail rounded w-25 my-2" />
-        <div class="text-start m-2 p-2">
-            A brain tumor is a mass or growth of abnormal cells in your brain.Many different types of brain tumors exist. Some brain tumors are noncancerous (benign), and some brain tumors are cancerous (malignant). Brain tumors can begin in your brain (primary brain tumors), or cancer can begin in other parts of your body and spread to your brain as secondary (metastatic) brain tumors. How quickly a brain tumor grows can vary greatly. The growth rate as well as the location of a brain tumor determines how it will affect the function of your nervous system
-        <span class="d-block text-info my-2 fw-bold">Types</span> 
-        Acoustic neuroma,
-        Astrocytoma, 
-        Brain metastases, 
-        Choroid plexus carcinoma, 
-        Craniopharyngioma, 
-        Embryonal tumors, 
-        Ependymoma, 
-        Glioblastoma, 
-        Glioma, 
-        Medulloblastoma,
-        Meningioma, 
-        Oligodendroglioma, 
-        Pediatric brain tumors, 
-        Pineoblastoma, 
-        Pituitary tumors, 
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-        <span class="d-block text-info my-2 fw-bold">Symptoms</span> 
-        Headaches.
-Seizures or convulsions.
-Difficulty thinking, speaking or finding words.
-Personality or behavior changes.
-Weakness, numbness or paralysis in one part or one side of the body.
-Loss of balance, dizziness or unsteadiness.
-Loss of hearing.
-Vision changes.
-        </div>
-        <div class="my-1 p-1 ">
-            <button type="button" class="btn btn-primary"> <a href = "uimg" class="text-white text nav-link">Detect Brain Tumor</a></button>
-        </div>
-        
+  <!-- Nav -->
+  <nav>
+    <div class="nav-logo">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="14" cy="17" r="3" fill="currentColor" opacity="0.4"/>
+        <path d="M11 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      NeuroScan
     </div>
+    <span class="nav-badge">v1.0 · BETA</span>
+    <a href="/uimg" class="nav-cta">Run Detection →</a>
+  </nav>
 
-    <div class="border text-center p-1 mt-2 fw-bold bg-light">
-Developed by N
+  <!-- Hero -->
+  <section class="hero">
+    <div>
+      <div class="hero-label fade-up">AI-Powered MRI Analysis</div>
+      <h1 class="fade-up delay-1">Brain Tumor<br /><span>Detection</span><br />System</h1>
+      <p class="hero-sub fade-up delay-2">Upload an MRI scan. Our ResNet50-based model classifies brain tumors across three categories with high accuracy in seconds.</p>
+      <div class="hero-actions fade-up delay-3">
+        <a href="/uimg" class="btn-primary">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Upload MRI Scan
+        </a>
+        <a href="#info" class="btn-secondary">Learn More ↓</a>
+      </div>
     </div>
-</div>      
+    <div class="hero-visual fade-up delay-4">
+      <div class="scan-frame">
+        <img src="{{ url_for('static', filename='b.jpg') }}" alt="MRI Scan" class="scan-img" />
+        <div class="scan-line"></div>
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+      </div>
+    </div>
+  </section>
 
-   </body> 
-</html> 
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat-card fade-up">
+      <div class="stat-num">99%</div>
+      <div class="stat-label">TEST ACCURACY</div>
+    </div>
+    <div class="stat-card fade-up delay-1">
+      <div class="stat-num">3,064</div>
+      <div class="stat-label">TRAINING IMAGES</div>
+    </div>
+    <div class="stat-card fade-up delay-2">
+      <div class="stat-num">3</div>
+      <div class="stat-label">TUMOR CLASSES</div>
+    </div>
+  </section>
+
+  <!-- Info -->
+  <section class="info-section" id="info">
+    <div class="info-card fade-up">
+      <div class="info-title">Detectable Tumor Types</div>
+      <ul class="info-list">
+        <li>Meningioma</li><li>Glioma</li><li>Pituitary</li>
+        <li>Acoustic Neuroma</li><li>Astrocytoma</li>
+        <li>Glioblastoma</li><li>Medulloblastoma</li>
+        <li>Oligodendroglioma</li><li>Ependymoma</li>
+        <li>Craniopharyngioma</li><li>Pineoblastoma</li>
+      </ul>
+    </div>
+    <div class="info-card fade-up delay-1">
+      <div class="info-title">Common Symptoms</div>
+      <div class="symptom-grid">
+        <div class="symptom-item">Persistent headaches</div>
+        <div class="symptom-item">Seizures or convulsions</div>
+        <div class="symptom-item">Speech difficulties</div>
+        <div class="symptom-item">Personality changes</div>
+        <div class="symptom-item">Weakness or numbness</div>
+        <div class="symptom-item">Balance & dizziness</div>
+        <div class="symptom-item">Vision disturbances</div>
+        <div class="symptom-item">Hearing loss</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <div class="disclaimer-box">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      Medical Disclaimer — This tool is for educational and research purposes only. Results must not be used for clinical diagnosis. Always consult a qualified medical professional.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>Developed by <span>Neeraj</span> &nbsp;·&nbsp; ResNet50 · PyTorch · Flask</footer>
+
+</body>
+</html>

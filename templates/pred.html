@@ -1,17 +1,262 @@
-<!doctype html> 
-<html> 
-<title>Brain tumor DETECTION</title>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Result — NeuroScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #050d1a;
+      --card:    #0d1f36;
+      --border:  rgba(0,224,200,0.12);
+      --accent:  #00e0c8;
+      --accent2: #3d8fff;
+      --danger:  #ff5f7e;
+      --text:    #e2eaf5;
+      --muted:   #6b8299;
+      --mono:    'DM Mono', monospace;
+      --head:    'Syne', sans-serif;
+      --body:    'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--body);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,224,200,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,224,200,0.025) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
+    }
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(120px);
+      pointer-events: none; z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(0,224,200,0.06); top: -200px; left: -200px; }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 64px;
+      background: rgba(5,13,26,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--head); font-size: 1.15rem; font-weight: 800;
+      color: var(--accent); text-decoration: none;
+    }
+    .nav-badge {
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--muted); letter-spacing: 0.08em;
+    }
+
+    /* Main */
+    main {
+      position: relative; z-index: 1;
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 5%;
+    }
+
+    /* Status line */
+    .status-line {
+      font-family: var(--mono); font-size: 0.72rem;
+      color: var(--accent); letter-spacing: 0.15em;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.4s ease forwards;
+    }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      animation: dotPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.4; transform:scale(0.7); }
+    }
+
+    /* Result card */
+    .result-card {
+      width: 100%; max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      animation: fadeUp 0.5s ease 0.05s both;
+    }
+    .result-card::before {
+      content: ''; display: block;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+    }
+
+    .result-header {
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-label {
+      font-family: var(--mono); font-size: 0.68rem;
+      color: var(--muted); letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+    .result-type {
+      font-family: var(--head); font-size: 2.4rem; font-weight: 800;
+      letter-spacing: -0.03em; color: var(--accent);
+      text-transform: capitalize;
+    }
+    .result-sub {
+      font-size: 0.85rem; color: var(--muted); margin-top: 6px;
+    }
+
+    .result-body {
+      padding: 24px 28px;
+    }
+
+    /* Info rows */
+    .info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,224,200,0.06);
+      font-size: 0.85rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-key { color: var(--muted); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; }
+    .info-val { color: var(--text); font-weight: 500; }
+    .badge {
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.06em;
+    }
+    .badge-ok   { background: rgba(0,224,200,0.1); color: var(--accent); border: 1px solid rgba(0,224,200,0.2); }
+    .badge-warn { background: rgba(255,95,126,0.1); color: var(--danger); border: 1px solid rgba(255,95,126,0.2); }
+
+    .result-footer {
+      padding: 20px 28px;
+      background: rgba(0,0,0,0.15);
+      border-top: 1px solid var(--border);
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .btn-accent {
+      flex: 1; min-width: 140px;
+      padding: 12px 20px;
+      background: var(--accent); color: var(--bg);
+      font-family: var(--mono); font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.06em; border-radius: 8px;
+      text-decoration: none; text-align: center;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 0 20px rgba(0,224,200,0.15);
+    }
+    .btn-accent:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-outline {
+      flex: 1; min-width: 140px;
+      padding: 12px 20px;
+      border: 1px solid var(--border); color: var(--muted);
+      font-family: var(--mono); font-size: 0.8rem;
+      letter-spacing: 0.06em; border-radius: 8px;
+      text-decoration: none; text-align: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Disclaimer */
+    .disclaimer {
+      width: 100%; max-width: 520px;
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: rgba(255,95,126,0.05);
+      border: 1px solid rgba(255,95,126,0.15);
+      border-radius: 10px;
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 0.78rem; color: rgba(255,95,126,0.7);
+      font-family: var(--mono); line-height: 1.5;
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 16px 5%; text-align: center;
+      font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+    }
+    footer span { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
- <body> 
-<h1 class="h1 fw-bold text-center text-uppercase shadow py-2 my-1 px-1 mx-1 bg-primary text-white">Brain Tumor DETECTION</h1>
-<div class="container my-1 p-2 d-flex justify-content-center">
-<div class="w-50 mt-3 p-3 mb-2 border rounded shadow">
-<p>you have {{result}} tumor. click <a href="" class="nav-link"></a></p>
-</div>
-</div>
+<body>
+  <div class="orb orb-1"></div>
+
+  <nav>
+    <a href="/" class="nav-logo">NeuroScan</a>
+    <span class="nav-badge">ANALYSIS COMPLETE</span>
+  </nav>
+
+  <main>
+    <div class="status-line">
+      <div class="status-dot"></div>
+      CLASSIFICATION COMPLETE · MODEL CONFIDENCE HIGH
+    </div>
+
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-label">Detected Tumor Type</div>
+        <div class="result-type">{{ result }}</div>
+        <div class="result-sub">ResNet50 classification via transfer learning</div>
+      </div>
+
+      <div class="result-body">
+        <div class="info-row">
+          <span class="info-key">MODEL</span>
+          <span class="info-val">ResNet50 · ImageNet pretrained</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">INPUT SIZE</span>
+          <span class="info-val">224 × 224 px</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">CLASSES</span>
+          <span class="info-val">Meningioma · Glioma · Pituitary</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">STATUS</span>
+          <span class="badge badge-ok">COMPLETED</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">MEDICAL USE</span>
+          <span class="badge badge-warn">NOT FOR DIAGNOSIS</span>
+        </div>
+      </div>
+
+      <div class="result-footer">
+        <a href="/uimg" class="btn-accent">↑ Upload New Scan</a>
+        <a href="/" class="btn-outline">← Back to Home</a>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px">
+        <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      This result is generated by an AI model for educational purposes only. Do not use this for clinical decisions. Please consult a qualified neurologist or radiologist.
+    </div>
+  </main>
+
+  <footer>NeuroScan &nbsp;·&nbsp; <span>Educational Use Only</span></footer>
 </body>
 </html>

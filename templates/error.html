@@ -1,12 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>error</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Error — NeuroScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #050d1a;
+      --card:   #0d1f36;
+      --border: rgba(0,224,200,0.12);
+      --accent: #00e0c8;
+      --danger: #ff5f7e;
+      --text:   #e2eaf5;
+      --muted:  #6b8299;
+      --mono:   'DM Mono', monospace;
+      --head:   'Syne', sans-serif;
+      --body:   'DM Sans', sans-serif;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--body);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 5%;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,95,126,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,95,126,0.02) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
+    }
+    .error-card {
+      position: relative; z-index: 1;
+      background: var(--card);
+      border: 1px solid rgba(255,95,126,0.2);
+      border-radius: 16px;
+      padding: 48px;
+      max-width: 460px; width: 100%;
+      text-align: center;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+    .error-card::before {
+      content: ''; display: block;
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--danger), rgba(255,95,126,0.3));
+    }
+    .error-icon {
+      width: 64px; height: 64px;
+      background: rgba(255,95,126,0.1);
+      border: 1px solid rgba(255,95,126,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; color: var(--danger);
+    }
+    .error-code {
+      font-family: var(--mono); font-size: 0.72rem;
+      color: var(--danger); letter-spacing: 0.18em;
+      margin-bottom: 10px; text-transform: uppercase;
+    }
+    h1 {
+      font-family: var(--head); font-size: 1.6rem; font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 12px;
+    }
+    p {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 32px;
+    }
+    .action-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      flex: 1; padding: 12px 16px;
+      background: var(--accent); color: var(--bg);
+      font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.06em;
+      border-radius: 8px; text-decoration: none; text-align: center;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-outline {
+      flex: 1; padding: 12px 16px;
+      border: 1px solid var(--border); color: var(--muted);
+      font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.06em;
+      border-radius: 8px; text-decoration: none; text-align: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-    <h1>Something went wrong. Please try again.</h1>
+  <div class="error-card">
+    <div class="error-icon">
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <div class="error-code">500 · Server Error</div>
+    <h1>Something went wrong.</h1>
+    <p>An unexpected error occurred while processing your request. This may be a temporary issue — please try again.</p>
+    <div class="action-group">
+      <a href="/uimg" class="btn-primary">↑ Try Again</a>
+      <a href="/" class="btn-outline">← Home</a>
+    </div>
+  </div>
 </body>
 </html>
