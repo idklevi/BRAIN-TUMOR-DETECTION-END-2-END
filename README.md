@@ -220,8 +220,8 @@ BRAIN TUMOR DETECTION [END 2 END]/
 ### 1. Clone the repository
 
 ```bash
-git clone 
-cd "Machine-Learning-Projects/BRAIN TUMOR DETECTION [END 2 END]"
+git clone https://github.com/idklevi/BRAIN-TUMOR-DETECTION-END-2-END-.git
+cd "BRAIN TUMOR DETECTION [END 2 END]"
 ```
 
 ### 2. Set up environment
